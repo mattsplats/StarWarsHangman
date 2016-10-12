@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/mattsplats/Week11-Hangman#readme",
   "dependencies": {
-    "alexa-app": "^2.3.4"
+    "alexa-app": "^2.3.4",
+    "tabletop": "^1.4.3"
   }
 }

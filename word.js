@@ -7,18 +7,15 @@ module.change_code = 1;
 const updateStatus = require('./letter.js').updateStatus;
 
 function checkGuess (game, guess) {
-	const letter = guess[0].toLowerCase();
-	console.log(letter);
-
-	if (game.guessList.indexOf(letter) !== -1) {
+	if (game.guessList.indexOf(guess) !== -1) {
 		return 'guessed';
 	}	
 
-	game.guessCount++;
-	game.guessList.push(letter);
+	game.guessesLeft--;
+	game.guessList.push(guess);
 
-	if (game.word.indexOf(letter) !== -1) {
-		updateStatus(game, letter);
+	if (game.puzzle.indexOf(guess) !== -1) {
+		updateStatus(game, guess);
 		return true;
 	}
 
