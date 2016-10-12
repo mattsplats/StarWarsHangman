@@ -12,16 +12,16 @@ const checkGuess = require('./word.js').checkGuess;
 const APP = new Alexa.app('swhangman');
 
 // On invocation
-APP.launch(function(request, response) {
+APP.launch(function (request, response) {
 	const game = new Game;
-	const prompt = `Your word is, ${game.word.length}, letters long. Guess a letter!`;
+	const prompt = `Your word is, ${game.wordLength}, letters long. Guess a letter!`;
 
 	response.session('game', game);
 	response.say(prompt).reprompt(prompt).shouldEndSession(false);
 });
 
 // On GetStatus
-APP.intent('GetStatus', { "utterances": ["status", "what's my status"] }, function(request, response) {
+APP.intent('GetStatus', { "utterances": ["status", "what's my status"] }, function (request, response) {
 	const game = request.session('game');
 	console.log(getStatus(game));
 
@@ -29,13 +29,11 @@ APP.intent('GetStatus', { "utterances": ["status", "what's my status"] }, functi
 });
 
 // On each guess
-APP.intent('GuessLetter', { "slots": {"guess": "LETTER"}, "utterances": ["{-|guess}"] }, function(request, response) {
-	const guess = request.slot('guess')[0];
+APP.intent('GuessLetter', { "slots": {"guess": "LETTER"}, "utterances": ["{-|guess}"] }, function (request, response) {
+	const guess = request.slot('guess');
 	const game = request.session('game');
 
 	let complete = false;
-
-	console.log(guess);
 
 	// If Alexa doesn't register a guess value
 	if (!guess) {
@@ -47,7 +45,7 @@ APP.intent('GuessLetter', { "slots": {"guess": "LETTER"}, "utterances": ["{-|gue
 
 		// If the player has already used this letter
 		if (result === 'guessed') {
-			response.say(`You already tried ${guess}. Guess again`);
+			response.say(`You've already used the letter ${guess}, guess again.`);
 
 		// If the letter is in the word, and has not been used
 		} else if (result) {
@@ -69,6 +67,8 @@ APP.intent('GuessLetter', { "slots": {"guess": "LETTER"}, "utterances": ["{-|gue
 		if (!complete) {
 			const reprompt = `Sorry, I didn't hear a letter. Try again.`;
 
+			console.log(game.guessList);
+
 			response.reprompt(reprompt).reprompt(reprompt);
 			response.session('game', game);
 			response.shouldEndSession(false);
@@ -76,27 +76,12 @@ APP.intent('GuessLetter', { "slots": {"guess": "LETTER"}, "utterances": ["{-|gue
 	}
 });
 
+// On 'Alexa stop' or 'Alexa cancel'
+APP.intent('AMAZON.StopIntent', {}, function (request, response) {
+	response.say(`Thanks for playing!`);
+});
+APP.intent('AMAZON.CancelIntent', {}, function (request, response) {
+	response.say(`Thanks for playing!`);
+});
+
 module.exports = APP;
-
-// const testGame = new Game;
-// console.log(testgetStatus(game) + '\n');
-
-// console.log(testGame.checkGuess('h'));
-// console.log(testGame.guessCount);
-// console.log(testgetStatus(game));
-// console.log(testGame.guessList + '\n');
-
-// console.log(testGame.checkGuess('h'));
-// console.log(testGame.guessCount);
-// console.log(testgetStatus(game));
-// console.log(testGame.guessList + '\n');
-
-// console.log(testGame.checkGuess('u'));
-// console.log(testGame.guessCount);
-// console.log(testgetStatus(game));
-// console.log(testGame.guessList + '\n');
-
-// console.log(testGame.checkGuess('t'));
-// console.log(testGame.guessCount);
-// console.log(testGame.status());
-// console.log(testGame.guessList + '\n');

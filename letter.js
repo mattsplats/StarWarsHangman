@@ -5,7 +5,10 @@
 module.change_code = 1;
 
 function getStatus (game) {
-	return game.statusArr.join(', ').replace(/(_)/g, 'blank');
+	return game.statusArr.slice()
+		.map(a => a === '_' ? 'blank' : a)
+		.map(a => a === ' ' ? 'space' : a)
+		.join(', ');
 }
 
 function updateStatus (game, guess) {

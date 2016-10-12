@@ -6,16 +6,14 @@ module.change_code = 1;
 
 function Game () {
 	this.word = newWord();
-	this.statusArr = [];
+	this.wordLength = this.word.split('').reduce((a,b) => b !== ' ' ? a + 1 : a, 0)  // Length of the word, not including spaces
+	this.statusArr = this.word.split('').map(a => a !== ' ' ? '_' : ' ');  // Split and replace letters with '_'
 	this.guessList = [];
 	this.guessCount = 0;
-
-	// Creates array of blank letters
-	for (const letter of this.word) this.statusArr.push('_');
 };
 
 function newWord () {
-	return 'bubba';
+	return 'big billy bo bob';
 }
 
 module.exports = Game;
