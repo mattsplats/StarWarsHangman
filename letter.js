@@ -12,8 +12,8 @@ function getStatus (game) {
 }
 
 function updateStatus (game, guess) {
-	for (let i = 0; i < game.word.length; i++) {
-		if (game.word[i] === guess) game.statusArr[i] = game.word[i];
+	for (let i = 0; i < game.puzzle.length; i++) {
+		if (game.puzzle[i] === guess) game.statusArr[i] = game.puzzle[i];
 	}
 }
 

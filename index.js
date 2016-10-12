@@ -6,6 +6,7 @@ module.change_code = 1;
 
 const Alexa = require('alexa-app');
 const Tabletop = require('tabletop');
+
 const Game = require('./game.js');
 const getStatus = require('./letter.js').getStatus;
 const checkGuess = require('./word.js').checkGuess;
@@ -23,7 +24,7 @@ APP.launch(function (request, response) {
 
 	function launch (data) {
 		const game = new Game(data[Math.floor(Math.random() * data.length)].word.toLowerCase(), MAX_GUESSES);
-		const prompt = `Your puzzle consists of ${game.numWords} words, and is ${game.wordLength} letters long. Guess a letter!`;
+		const prompt = `Your puzzle consists of ${game.numWords} words, and is ${game.puzzleLength} letters long. Guess a letter!`;
 
 		response.session('game', game);
 		response.say(prompt).reprompt(prompt).shouldEndSession(false).send();
