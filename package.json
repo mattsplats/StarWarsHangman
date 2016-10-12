@@ -1,0 +1,22 @@
+{
+  "name": "hangman",
+  "version": "1.0.0",
+  "description": "hangman game for Amazon Alexa",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mattsplats/Week11-Hangman.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mattsplats/Week11-Hangman/issues"
+  },
+  "homepage": "https://github.com/mattsplats/Week11-Hangman#readme",
+  "dependencies": {
+    "alexa-app": "^2.3.4"
+  }
+}
