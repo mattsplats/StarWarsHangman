@@ -1,68 +1,102 @@
 'use strict';
 
-const Alexa = require('alexa-app');
-
 // Allow this module to be reloaded by hotswap when changed
+// ( For alexa-app server )
 module.change_code = 1;
 
-// Define an alexa-app
+const Alexa = require('alexa-app');
+const Game = require('./game.js');
+const getStatus = require('./letter.js').getStatus;
+const checkGuess = require('./word.js').checkGuess;
+
 const APP = new Alexa.app('swhangman');
 
 // On invocation
 APP.launch(function(request, response) {
-	const prompt = 'Guess a letter!';
-	const word = 'hut';
-	const status = '___';
+	const game = new Game;
+	const prompt = `Your word is, ${game.word.length}, letters long. Guess a letter!`;
 
-	response.session('word', word);
-	response.session('status', status);
-	response.session('guessCount', 0);
-
+	response.session('game', game);
 	response.say(prompt).reprompt(prompt).shouldEndSession(false);
 });
 
 // On GetStatus
 APP.intent('GetStatus', { "utterances": ["status", "what's my status"] }, function(request, response) {
-	let status = request.session('status').split('').join(', ').replace(/(_)/g, 'blank');
-	console.log(status);
-	response.say(`You have, ${status}`).shouldEndSession(false);
+	const game = request.session('game');
+	console.log(getStatus(game));
+
+	response.say(`You have, ${getStatus(game)}`).shouldEndSession(false);
 });
 
 // On each guess
-APP.intent('GuessLetter', { "slots": {"guess": "LITERAL"}, "utterances": ["{word}"] }, function(request, response) {
-	const guess = request.slot('guess');
-	const word = request.session('word');
-	let status = request.session('status')
-	const guessCount = (+request.session('guessCount')) + 1;
+APP.intent('GuessLetter', { "slots": {"guess": "LETTER"}, "utterances": ["{-|guess}"] }, function(request, response) {
+	const guess = request.slot('guess')[0];
+	const game = request.session('game');
 
-	console.log(guess, word, status, guessCount);
+	let complete = false;
 
+	console.log(guess);
+
+	// If Alexa doesn't register a guess value
 	if (!guess) {
-		response.say(`Sorry, I didn't hear a letter. The word was ${word}`);
+		response.say(`Sorry, I didn't hear a letter. The word was, ${game.word}`);
 
+	// If Alexa registers a guess value
 	} else {
-		const index = word.indexOf(guess[0]);
-		console.log(index);
+		const result = checkGuess(game, guess);
 
-		if (index !== -1) {
-			console.log('hit');
-			status = status.slice(0, index) + word[index] + status.slice(index + 1);
-			response.say('Correct!');
+		// If the player has already used this letter
+		if (result === 'guessed') {
+			response.say(`You already tried ${guess}. Guess again`);
+
+		// If the letter is in the word, and has not been used
+		} else if (result) {
+
+			// If the word is complete (ends session)
+			if (game.statusArr.join('') === game.word) {
+				complete = true;
+				response.say(`You win! The complete word is, ${game.word}. You used ${game.guessCount} guesses. Thanks for playing!`);
+			}	else {
+				response.say(`Correct! You now have, ${getStatus(game)}`);
+			}
+
+		// If the letter is not in the word, and has not been used
 		} else {
-			console.log('miss');
-			response.say('Guess again');
+			response.say(`Sorry, ${guess} is not part of the word. Guess again`);
 		}
 	
-		if (status === word) {
-			console.log('win');
-			response.say(`You finished the word ${word}. Thanks for playing!`);
-		} else {
-			response.reprompt("Sorry, I didn't hear a letter. Try again.");
-			response.session('status', status);
-			response.session('guessCount', guessCount);
+		// If the word is not complete (prevents session from ending)
+		if (!complete) {
+			const reprompt = `Sorry, I didn't hear a letter. Try again.`;
+
+			response.reprompt(reprompt).reprompt(reprompt);
+			response.session('game', game);
 			response.shouldEndSession(false);
 		}
 	}
 });
 
 module.exports = APP;
+
+// const testGame = new Game;
+// console.log(testgetStatus(game) + '\n');
+
+// console.log(testGame.checkGuess('h'));
+// console.log(testGame.guessCount);
+// console.log(testgetStatus(game));
+// console.log(testGame.guessList + '\n');
+
+// console.log(testGame.checkGuess('h'));
+// console.log(testGame.guessCount);
+// console.log(testgetStatus(game));
+// console.log(testGame.guessList + '\n');
+
+// console.log(testGame.checkGuess('u'));
+// console.log(testGame.guessCount);
+// console.log(testgetStatus(game));
+// console.log(testGame.guessList + '\n');
+
+// console.log(testGame.checkGuess('t'));
+// console.log(testGame.guessCount);
+// console.log(testGame.status());
+// console.log(testGame.guessList + '\n');
