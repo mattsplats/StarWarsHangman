@@ -12,10 +12,12 @@ const getStatus = require('./letter.js').getStatus;
 const checkGuess = require('./word.js').checkGuess;
 
 const APP = new Alexa.app('swhangman');
-const MAX_GUESSES = 3;
+const MAX_GUESSES = 8;
 
 // On invocation
 APP.launch(function (request, response) {
+	console.log('test');
+
 	Tabletop.init({
 		key: "https://docs.google.com/spreadsheets/d/1t91WBYfhh9FKVT2IRz8G_1cx8G1EkyfFQlk-AMPFwcQ/pubhtml",
 		callback: launch,
@@ -24,7 +26,8 @@ APP.launch(function (request, response) {
 
 	function launch (data) {
 		const game = new Game(data[Math.floor(Math.random() * data.length)].word.toLowerCase(), MAX_GUESSES);
-		const prompt = `Your puzzle consists of ${game.numWords} words, and is ${game.puzzleLength} letters long. Guess a letter!`;
+		const prompt = `Your puzzle consists of ${game.numWords} word${game.numWords > 1 ? 's' : ''}, and is ${game.puzzleLength} letters long.
+			Guess a letter!`;
 
 		response.session('game', game);
 		response.say(prompt).reprompt(prompt).shouldEndSession(false).send();
@@ -64,7 +67,7 @@ APP.intent('GuessLetter', { "slots": {"guess": "LETTER"}, "utterances": ["{-|gue
 			// If the word is complete (ends session)
 			if (game.statusArr.join('') === game.puzzle) {
 				complete = true;
-				response.say(`You win! The completed puzzle is, ${game.puzzle.split(' ').join(', ')}. Thanks for playing!`);
+				response.say(`You win! ${game.puzzle.split(' ').join(', ')}, was the answer. Thanks for playing!`);
 			}	else {
 				response.say(`Correct! You now have, ${getStatus(game)}`);
 			}
@@ -73,7 +76,7 @@ APP.intent('GuessLetter', { "slots": {"guess": "LETTER"}, "utterances": ["{-|gue
 		} else {
 
 			// If the player is out of guesses (ends session)
-			if (game.guessesLeft >= 0) {
+			if (game.guessesLeft <= 0) {
 				complete = true;
 				response.say(`Sorry, you lose! The answer was, ${game.puzzle.split(' ').join(', ')}. Better luck next time. Thanks for playing!`);
 			}	else {
@@ -108,3 +111,5 @@ module.exports = APP;
 // result = checkGuess(testGame, 'x');
 // console.log(result);
 // console.log(testGame);
+
+console.log(Alexa.apps.swhangman.launch);

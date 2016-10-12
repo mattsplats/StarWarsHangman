@@ -6,7 +6,7 @@ module.change_code = 1;
 
 function getStatus (game) {
 	return game.statusArr.slice()
-		.map(a => a === '_' ? 'blank' : a)  // Replace all underscores with the word 'blank'
+		.map(a => a === '_' ? 'blank' : a)  // Replace all underscores with the word 'blank' 
 		.map(a => a === ' ' ? 'space' : a)  // Replace all spaces with the word 'space'
 		.join(', ');
 }
