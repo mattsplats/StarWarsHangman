@@ -4,7 +4,7 @@
 // ( For alexa-app server )
 module.change_code = 1;
 
-const MAX_GUESSES = 8;
+const MAX_GUESSES = 3;
 const WORD_LIST = [
 	'jedi',
 	'lightsaber',
@@ -32,7 +32,7 @@ function Game () {
 	this.statusArr = this.puzzle.split('').map(a => a !== ' ' ? '_' : ' ');               // Split and replace letters with '_'
 	this.guessList = [];
 	this.guessesLeft = MAX_GUESSES;
-	this.isFast = false;
+	this.isVerbose = true;
 };
 
 module.exports = Game;

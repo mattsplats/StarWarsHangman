@@ -23,7 +23,7 @@ app.launch(function (request, response) {
 
 // On GetStatus
 app.intent('GetStatus', { "utterances": ["status", "what's my status"] }, function (request, response) {
-	response.say(`You have, ${getStatus(request.session('game'))}`).shouldEndSession(false);
+	response.say(`${getStatus(request.session('game'))}`).shouldEndSession(false);
 });
 
 // On each guess
@@ -51,9 +51,9 @@ app.intent('GuessLetter', { "slots": {"guess": "LETTER"}, "utterances": ["{-|gue
 			// If the word is complete (ends session)
 			if (game.statusArr.join('') === game.puzzle) {
 				complete = true;
-				response.say(`You win! ${game.puzzle.split(' ').join(', ')}, was the answer. Thanks for playing!`);
+				response.say(`You win! ${game.puzzle}, was the answer. Thanks for playing!`);
 			}	else {
-				response.say(`Correct! You now have: ${getStatus(game)}`);
+				response.say(`${guess}, is correct! ${game.isVerbose ? getStatus(game) : ''}`);
 			}
 
 		// If the letter is not in the word, and has not been used
@@ -62,9 +62,9 @@ app.intent('GuessLetter', { "slots": {"guess": "LETTER"}, "utterances": ["{-|gue
 			// If the player is out of guesses (ends session)
 			if (game.guessesLeft <= 0) {
 				complete = true;
-				response.say(`Sorry, you lose! The answer was, ${game.puzzle.split(' ').join(', ')}. Better luck next time. Thanks for playing!`);
+				response.say(`I'm sorry, the answer was, ${game.puzzle}. Thanks for playing!`);
 			}	else {
-				response.say(`Sorry, the letter ${guess} is not part of the puzzle. You have ${game.guessesLeft} guesses left.`);
+				response.say(`Sorry, there's no letter ${guess}. ${game.guessesLeft} guess${game.guessesLeft > 1 ? 'es' : ''} left.`);
 			}
 		}
 	
@@ -79,42 +79,44 @@ app.intent('GuessLetter', { "slots": {"guess": "LETTER"}, "utterances": ["{-|gue
 
 // On whole word guess
 app.intent('GuessPuzzle', {"slots": {"solve": "WORD_LIST"}, "utterances": ["{is it} {-|solve}"]}, function (request, response) {
-	const guess = request.slot('guess').toLowerCase();
+	const game = request.session('game');
 
-	if (guess === game.puzzle) {
-		response.say(`You win! ${game.puzzle.split(' ').join(', ')}, was the answer. Thanks for playing!`);
+	if (request.slot('solve').toLowerCase() === game.puzzle) {
+		response.say(`You win! ${game.puzzle}, was the answer. Thanks for playing!`);
 	}	else {
-		response.say(`Sorry, you lose! The answer was, ${game.puzzle.split(' ').join(', ')}. Better luck next time. Thanks for playing!`);
+		response.say(`I'm sorry, the answer was, ${game.puzzle}. Thanks for playing!`);
 	}
 });
 
-// On speed setting
-app.intent('SetSpeed', {"slots": {"speed": "SPEEDS"}, "utterances": ["{talk|speed|set speed} {-|speed}"]}, function (request, response) {
-	const speed = request.slot('speed').toLowerCase();
+// On verbose setting
+app.intent('SetVerbose', {"slots": {"verbose": "ON_OFF"}, "utterances": ["{talk|mode} {-|verbose}"]}, function (request, response) {
+	const verbose = request.slot('verbose').toLowerCase();
 	const game = request.session('game');
 
-	if (speed === 'faster' || speed === 'fast') {
-		game.isFast = true;
-		response.say(`OK. I will say the words faster.`);
-	}	else if (speed === 'slower' || speed === 'slow') {
-		game.isFast = false;
-		response.say(`OK. I will say the words slower.`);
+	if (verbose === 'less' || verbose === 'off') {
+		game.isVerbose = false;
+		response.say(`OK. Unless you say status, I won't repeat the puzzle.`);
+	}	else if (verbose === 'more' || verbose === 'on') {
+		game.isVerbose = true;
+		response.say(`OK. I will repeat the puzzle after every guess.`);
 	} else {
-		response.say(`Sorry, I didn't understand. The current talk speed is ${game.isFast ? 'fast' : 'slow'}.`);
+		response.say(`Sorry, I didn't understand. Puzzle repeat is ${game.isVerbose ? 'on' : 'off'}.`);
 	}
 
-	response.reprompt(`Sorry, I didn't hear a letter. Try again.`);
+	response.reprompt(`Guess a letter!`);
 	response.session('game', game);
 	response.shouldEndSession(false);
 });
 
 // On 'Alexa help'
 app.intent('AMAZON.HelpIntent', {}, function (request, response) {
-	response.say(`Say any letter to make a guess. Words like alpha, and echo, may be used instead of letters.
-		If you think you know the answer, you may say, is it, and your guess for the whole puzzle.
-		Say status to get the current state of the puzzle.
-		Say talk faster or talk slower to change how fast I read the puzzle blanks.
+	response.say(`Say any letter to make a guess. Words like alpha, bravo, and echo, may be used instead of letters.
+		Say: status, to get the current state of the puzzle.
+		Say: talk less, and I won't repeat the puzzle on each guess, or: talk more, to enable again.
+		If you think you know the answer, you can say: is it, and your guess for the whole puzzle.
 	`);
+	response.reprompt(`Guess a letter!`);
+	response.shouldEndSession(false);
 });
 
 // On 'Alexa stop' or 'Alexa cancel'
@@ -127,11 +129,12 @@ app.intent('AMAZON.CancelIntent', {}, function (request, response) {
 
 module.exports = app;
 
-const test = new Game();
-checkGuess(test, 'e');
-checkGuess(test, 'a');
-checkGuess(test, 'i');
-checkGuess(test, 'r');
-checkGuess(test, 's');
-checkGuess(test, 't');
-console.log(getStatus(test));
+// const test = new Game();
+// console.log(test.puzzle);
+// checkGuess(test, 'e');
+// checkGuess(test, 'a');
+// checkGuess(test, 'i');
+// checkGuess(test, 'r');
+// checkGuess(test, 's');
+// checkGuess(test, 't');
+// console.log('\n' + getStatus(test));
