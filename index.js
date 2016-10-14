@@ -62,7 +62,7 @@ app.intent('GuessLetter', { "slots": {"guess": "LETTER"}, "utterances": ["{-|gue
 			// If the player is out of guesses (ends session)
 			if (game.guessesLeft <= 0) {
 				complete = true;
-				response.say(`I'm sorry, the answer was, ${game.puzzle}. Thanks for playing!`);
+				response.say(`Sorry, the answer was, ${game.puzzle}. Thanks for playing!`);
 			}	else {
 				response.say(`Sorry, there's no letter ${guess}. ${game.guessesLeft} guess${game.guessesLeft > 1 ? 'es' : ''} left.`);
 			}
@@ -79,12 +79,13 @@ app.intent('GuessLetter', { "slots": {"guess": "LETTER"}, "utterances": ["{-|gue
 
 // On whole word guess
 app.intent('GuessPuzzle', {"slots": {"solve": "WORD_LIST"}, "utterances": ["{is it} {-|solve}"]}, function (request, response) {
+	const guess = request.slot('solve').toLowerCase();
 	const game = request.session('game');
 
-	if (request.slot('solve').toLowerCase() === game.puzzle) {
+	if (guess === game.puzzle) {
 		response.say(`You win! ${game.puzzle}, was the answer. Thanks for playing!`);
 	}	else {
-		response.say(`I'm sorry, the answer was, ${game.puzzle}. Thanks for playing!`);
+		response.say(`Sorry, ${guess}, is not correct. The answer was, ${game.puzzle}. Thanks for playing!`);
 	}
 });
 
